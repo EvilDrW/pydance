@@ -159,7 +159,29 @@ def main():
   music.load(os.path.join(sound_path, "menu.ogg"))
   music.play(4, 0.0)
 
-  songs = load_files(screen, song_list, _("songs"), SongItem, (False,))
+  # throw out duplicates (prioritize .dance > .sm > .dwi > song.)
+  song_list_priority = ( "dance", "sm", "dwi", "song" )
+  new_song_list = []
+  last_song_title = ("","")
+  for item in song_list:
+    (song_dir, song_fn) = os.path.split(item)
+    if song_fn[0:5] == "song.":
+      song_title = ( song_fn[5:], "song" )
+    elif song_fn[-3:] == ".sm":
+      song_title = ( song_fn[:-3], "sm" )
+    elif song_fn[-4:] == ".dwi":
+      song_title = ( song_fn[:-4], "dwi" )
+    else:
+      song_title = ( song_fn[:-6], "dance" )
+    if song_title[0] == last_song_title[0]:  # we already have this one.
+      if (song_list_priority.index(song_title[1]) < song_list_priority.index(last_song_title[1])):  # the new one is better
+        last_song_title = song_title
+      new_song_list[-1] = item
+    else: 
+      new_song_list.append(item)
+      last_song_title = song_title
+	
+  songs = load_files(screen, new_song_list, _("songs"), SongItem, (False,))
 
   # Construct the song and record dictionaries for courses. These are
   # necessary because courses identify songs by title and mix, rather
