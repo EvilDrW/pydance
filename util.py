@@ -1,6 +1,7 @@
 import fnmatch
 import os
 import string
+import glob
 
 from i18n import *
 
@@ -67,6 +68,15 @@ def find(path, patterns):
           matches.append(filepath)
           break
 
+  return matches
+  
+# search down depth 2: <songroot>/<package name>/<song name>/<song name>.<pattern>
+# this (hopefully) lets us organize by packages, like how stepmania does
+def find_songs(path, patterns):
+  matches = []
+  for pattern in patterns:
+    matches.extend(glob.glob(path + os.sep + '*' + os.sep + '*' + os.sep + pattern))
+    
   return matches
 
 # This uses a bunch of heuristics to come up with a good titlecased

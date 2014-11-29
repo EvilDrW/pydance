@@ -140,7 +140,7 @@ def main():
   course_list = []
   for dir in mainconfig["songdir"].split(os.pathsep):
     print _("Searching for songs in"), dir
-    song_list.extend(util.find(dir, ['*.dance', '*.dwi', '*.sm', '*/song.*']))
+    song_list.extend(util.find_songs(dir, ['*.dance', '*.dwi', '*.sm', '*/song.*']))
   for dir in mainconfig["coursedir"].split(os.pathsep):
     print _("Searching for courses in"), dir
     course_list.extend(util.find(dir, ['*.crs']))
