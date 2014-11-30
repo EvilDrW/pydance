@@ -10,20 +10,30 @@ SCREENSHOT = SORT
 
 non_player = [CANCEL, PASS]
 
+# these defaults are INSANE and make the UI for the game far too complicated
+# pad_defaults = {
+  # pad.QUIT: CANCEL,
+  # pad.UP: UP,
+  # pad.DOWN: DOWN,
+  # pad.LEFT: LEFT,
+  # pad.RIGHT: RIGHT,
+  # pad.START: START,
+  # pad.UPRIGHT: CONFIRM,
+  # pad.DOWNRIGHT: PGDN,
+  # pad.UPLEFT: CANCEL,
+  # pad.DOWNLEFT: PGUP,
+  # pad.SELECT: SELECT,
+  # pad.SCREENSHOT: SCREENSHOT,
+  # }
+# setup saner defaults
 pad_defaults = {
-  pad.QUIT: CANCEL,
   pad.UP: UP,
   pad.DOWN: DOWN,
   pad.LEFT: LEFT,
   pad.RIGHT: RIGHT,
-  pad.START: START,
-  pad.UPRIGHT: CONFIRM,
-  pad.DOWNRIGHT: PGDN,
-  pad.UPLEFT: CANCEL,
-  pad.DOWNLEFT: PGUP,
-  pad.SELECT: SELECT,
-  pad.SCREENSHOT: SCREENSHOT,
-  }
+  pad.START: CONFIRM,
+  pad.SELECT: CANCEL
+}
 
 if mainconfig["centerconfirm"]: pad_defaults[pad.CENTER] = CONFIRM
 
