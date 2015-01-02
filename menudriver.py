@@ -7,6 +7,7 @@ import sys
 import games
 import ui
 import pad
+import calibrate
 from constants import *
 from announcer import Announcer
 from gfxtheme import ThemeFile
@@ -261,6 +262,7 @@ def do(screen, songdata):
                                          zip([0, 1, 2],
                                              [_("Never"), _("Multi-song Only"), _("Always")]))],
         [_("Font (after restart)"), rotate_opt, ('fonttheme', FontTheme.themes())],
+        [_("Calibrate Latency"), {ui.START: wrap_ctr, ui.CONFIRM: wrap_ctr}, (calibrate.run, (screen,))],
         [_("Back"), None, None]
         )
        )

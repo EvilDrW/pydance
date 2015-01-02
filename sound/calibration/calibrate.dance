@@ -1,0 +1,24 @@
+filename calibrate.ogg
+title Latency Calibration
+artist pydance
+author pydance
+banner calibrate-ban.png
+background calibrate-bg.png
+bpm 60
+gap -8000
+end
+SINGLE
+BASIC 1
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+q 5555
+end

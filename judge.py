@@ -138,7 +138,23 @@ class BeatJudge(AbstractJudge):
 
   def _is_miss(self, curtime, time): return time < curtime - self._b
 
-judges = [TimeJudge, BeatJudge]
+class CalibrationJudge(AbstractJudge): 
+  def __init__ (self, pid, songconf):
+    AbstractJudge.__init__(self, pid, songconf)
+  
+  def _get_rating(self, curtime, t):
+    #print 'calibration event time: ' + str(curtime) + ', note time: ' + str(t)
+    # pretty sure that t and curtime in seconds, but master offset in msec
+    offset = (t - curtime) * 1000.0
+    # adapt the configured offset to the measured offset via a super lazy
+    # infinite impulse response filter (2 parts old offset, 3 part new offset)
+    mainconfig['masteroffset'] = 0.4 * mainconfig['masteroffset'] + 0.6 * offset
+    return "V"
+  
+  def _is_miss(self, curtime, time):
+    return False
+
+judges = [TimeJudge, BeatJudge, CalibrationJudge]
 judge_opt = [
   (0, _("Time"),
    _("Judging is based on how many seconds you are from the correct time.")),
