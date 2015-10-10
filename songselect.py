@@ -189,6 +189,7 @@ class SongSelect(InterfaceWindow):
     # please use set constructions after python 2.4 is adopted
     sort_name = self._update_songitems()
 
+    # FIXME fuck this, we're only doing folders, the way that stepmania does (exactly one open at a time)
     if len(self._songs) > 60 and mainconfig["folders"]:
       self._create_folders()
       self._create_folder_list()
@@ -256,6 +257,7 @@ class SongSelect(InterfaceWindow):
     self._list.set_index(self._index)
     self._title.set_text(self._base_text + " - %d/%d" % (self._index + 1,
                                                          len(self._songitems)))
+    # FIXME this loop is a mess.  de-duplicate if statements
     while not (ev == ui.CANCEL and (not self._folders or self._song.isfolder)):
       # Inactive player. If the event isn't set to ui.PASS, we try to use
       # the pid later, which will be bad.
