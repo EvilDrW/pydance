@@ -336,8 +336,12 @@ def play(screen, playlist, configs, songconf, playmode):
       player.set_song(current_song, diff[pid], songdata.lyricdisplay)
 
     print _("Playing"), songfn
-    print songdata.title.encode(sys.stdout.encoding, "replace"), "by",
-    print songdata.artist.encode(sys.stdout.encoding, "replace")
+    if sys.stdout.encoding is not None:
+      print songdata.title.encode(sys.stdout.encoding, "replace"), "by",
+      print songdata.artist.encode(sys.stdout.encoding, "replace")
+    else:
+      print songdata.title, "by",
+      print songdata.artist
 
     if dance(screen, songdata, players, prevscr, first, game):
       first = False
