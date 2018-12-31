@@ -339,7 +339,11 @@ class SongSelect(InterfaceWindow):
           self._index = 0
         else:
           music.fadeout(500)
-          dance.play(self._screen, [(self._song.filename, self._diff_names)],
+          dance.play(self._screen,
+                     [(
+                       [self._song.filename[self._song.difficulty_file_index[d]] for d in self._diff_names],
+                       self._diff_names
+                     )],
                      self._configs, self._config, self._game)
           music.fadeout(500) # The just-played song
           self._screen.blit(self._bg, [0, 0])

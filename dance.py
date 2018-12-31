@@ -314,7 +314,14 @@ def play(screen, playlist, configs, songconf, playmode):
     players.append(plr)
 
   for songfn, diff in playlist:
-    try: current_song = fileparsers.SongItem(songfn)
+    try:
+      current_song = None
+      for fn in songfn:
+        parsed_song_item = fileparsers.SongItem(fn)
+        if current_song == None:
+          current_song = parsed_song_item
+        else:
+          current_song.merge(parsed_song_item)
     except None:
       error.ErrorMessage(screen, _("There was an error loading ") +
                          os.path.split(songfn)[1])

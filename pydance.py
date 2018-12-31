@@ -74,23 +74,29 @@ def play_and_quit(fn, mode, difficulty):
              [player_config] * pc, game_config, mode)
   raise SystemExit
 
-# Pass a list of files to a constructor (Ctr) that takes the filename
+# Pass a list of lists of files to a constructor (Ctr) that takes the filename
 # as the first argument, and the args tuple as the rest.
-def load_files(screen, files, type, Ctr, args):
-  if len(files) == 0: return []
+def load_files(screen, filesets, type, Ctr, args):
+  if len(filesets) == 0: return []
 
   screen.fill(colors.BLACK)
   pct = 0
-  inc = 100.0 / len(files)
-  # Remove duplicates
-  files = list(dict(map(None, files, [])).keys())
+  inc = 100.0 / len(filesets)
   objects = []
-  message = _("Found %d %s. Loading...") % (len(files), _(type))
+  message = _("Found %d %s. Loading...") % (len(filesets), _(type))
   pbar = TextProgress(FontTheme.loading_screen, message, colors.WHITE, colors.BLACK)
   r = pbar.render(0).get_rect()
   r.center = [320, 240]
-  for f in files:
-    try: objects.append(Ctr(*((f,) + args)))
+  for fileset in filesets:
+    try:
+      setObject = None
+      for f in fileset:
+        obj = Ctr(*((f,) + args))
+        if setObject == None:
+          setObject = obj
+        else:
+          setObject.merge(obj)
+      objects.append(setObject)
     except RuntimeError, message:
       print _("E:"), f
       print _("E:"), message
@@ -136,11 +142,11 @@ def main():
 
   if test_file: play_and_quit(test_file, mode, difficulty)
 
-  song_list = []
+  song_list = {}
   course_list = []
   for dir in mainconfig["songdir"].split(os.pathsep):
     print _("Searching for songs in"), dir
-    song_list.extend(util.find_songs(dir, ['*.dance', '*.dwi', '*.sm', '*/song.*']))
+    song_list.update(util.find_songs(dir, ['*.dance', '*.sm', '*.dwi', '*/song.*']))
   for dir in mainconfig["coursedir"].split(os.pathsep):
     print _("Searching for courses in"), dir
     course_list.extend(util.find(dir, ['*.crs']))
@@ -159,29 +165,7 @@ def main():
   music.load(os.path.join(sound_path, "menu.ogg"))
   music.play(4, 0.0)
 
-  # throw out duplicates (prioritize .dance > .sm > .dwi > song.)
-  song_list_priority = ( "dance", "sm", "dwi", "song" )
-  new_song_list = []
-  last_song_title = ("","")
-  for item in song_list:
-    (song_dir, song_fn) = os.path.split(item)
-    if song_fn[0:5] == "song.":
-      song_title = ( song_fn[5:], "song" )
-    elif song_fn[-3:] == ".sm":
-      song_title = ( song_fn[:-3], "sm" )
-    elif song_fn[-4:] == ".dwi":
-      song_title = ( song_fn[:-4], "dwi" )
-    else:
-      song_title = ( song_fn[:-6], "dance" )
-    if song_title[0] == last_song_title[0]:  # we already have this one.
-      if (song_list_priority.index(song_title[1]) < song_list_priority.index(last_song_title[1])):  # the new one is better
-        last_song_title = song_title
-      new_song_list[-1] = item
-    else: 
-      new_song_list.append(item)
-      last_song_title = song_title
-	
-  songs = load_files(screen, new_song_list, _("songs"), SongItem, (False,))
+  songs = load_files(screen, song_list.values(), _("songs"), SongItem, (False,))
 
   # Construct the song and record dictionaries for courses. These are
   # necessary because courses identify songs by title and mix, rather
@@ -197,7 +181,7 @@ def main():
     song_dict[mix][title] = song
     record_dict[song.info["recordkey"]] = song
 
-  crs = load_files(screen, course_list, _("courses"), courses.CourseFile,
+  crs = load_files(screen, [course_list], _("courses"), courses.CourseFile,
                    (song_dict, record_dict))
   crs.extend(courses.make_players(song_dict, record_dict))
   records.verify(record_dict)

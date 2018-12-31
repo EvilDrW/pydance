@@ -10,11 +10,12 @@ import games
 import util
 
 from constants import *
+from operator import xor
 
 # The basic skeleton parser/song class.
 class GenericFile(object):
   def __init__(self, filename, need_steps):
-    self.filename = filename
+    self.filename = [filename]
     self.difficulty = {}
     self.steps = {}
     self.info = {}
@@ -27,7 +28,7 @@ class GenericFile(object):
   def find_files(self, formats):
     files = []
 
-    dir = os.path.split(self.filename)[0]
+    dir = os.path.split(self.filename[0])[0]
     if dir == "": dir = "."
 
     files = [os.path.join(dir, f) for f in dircache.listdir(dir) if
@@ -49,7 +50,7 @@ class GenericFile(object):
   # If a filename isn't found, try joining it with the path of the song's
   # filename.
   def resolve_files_sanely(self):
-    dir, name = os.path.split(self.filename)
+    dir, name = os.path.split(self.filename[0])
     for t in ["banner", "filename", "movie", "background"]:
       if t in self.info:
         if not os.path.isfile(self.info[t]):
@@ -230,7 +231,7 @@ class MSDFile(GenericFile):
     return lines
 
   def find_mixname(self):
-    dir, name = os.path.split(self.filename)
+    dir, name = os.path.split(self.filename[0])
     mixname = os.path.split(os.path.split(dir)[0])[1]
     if mixname != "songs": self.info["mix"] = mixname
 
@@ -860,7 +861,7 @@ class SongItem(object):
     if song.lyrics: self.lyrics = song.lyrics
     else: self.lyrics = []
     self.difficulty = song.difficulty
-    self.filename = filename
+    self.filename = [filename]
     self.description = song.description
 
     if self.info["mix"] == "Unknown": self.info["mix"] = "No Mix"
@@ -902,5 +903,33 @@ class SongItem(object):
             self.difficulty[game] = dict(self.difficulty["5COUPLE"])
 
     self.diff_list = {}
-    for key in self.difficulty:    
+    self.difficulty_file_index = {}
+    for key in self.difficulty:
       self.diff_list[key] = sorted_diff_list(self.difficulty[key])
+      self.difficulty_file_index[key] = {}
+      for dk in self.difficulty[key]:
+        self.difficulty_file_index[key][dk] = 0
+
+
+  def merge(self, other):
+    # merge the info dictionary
+    for k in self.info.keys():
+      self.info[k] = self.info[k] or other.info[k]
+      if self.info[k] == 'Unknown' and not (other.info[k] == 'Unknown'):
+        self.info[k] = other.info[k]
+
+    self.filename.extend(other.filename)
+
+    # now merge the difficulty lists and difficulties
+    for k in self.difficulty.keys():
+      self.difficulty[k].update(other.difficulty[k])
+      self.diff_list[k] = sorted_diff_list(self.difficulty[k])
+
+      for dk in other.difficulty_file_index[k]:
+        other.difficulty_file_index[k][dk] = len(self.filename)-1
+      self.difficulty_file_index[k].update(other.difficulty_file_index[k])
+
+      if k in self.steps and k in other.steps:
+        self.steps[k].update(other.steps[k])
+
+    pass

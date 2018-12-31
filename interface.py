@@ -594,6 +594,7 @@ class AbstractItemDisplay(object):
 class SongItemDisplay(AbstractItemDisplay):
   def __init__(self, song, game):
     AbstractItemDisplay.__init__(self, song)
+    self.difficulty_file_index = song.difficulty_file_index[game]
     self.difficulty = song.difficulty[game]
     self.diff_list = song.diff_list[game]
     self.danceitems = {}

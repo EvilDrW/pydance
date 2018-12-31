@@ -73,10 +73,15 @@ def find(path, patterns):
 # search down depth 2: <songroot>/<package name>/<song name>/<song name>.<pattern>
 # this (hopefully) lets us organize by packages, like how stepmania does
 def find_songs(path, patterns):
-  matches = []
+  matches = {}
   for pattern in patterns:
-    matches.extend(glob.glob(path + os.sep + '*' + os.sep + '*' + os.sep + pattern))
-    
+    matchingFiles = glob.glob(path + os.sep + '*' + os.sep + '*' + os.sep + pattern)
+    for file in matchingFiles:
+      (filepath, filename) = os.path.split(file)
+      if not filepath in matches:
+        matches[filepath] = []
+      matches[filepath].append(file)
+
   return matches
 
 # This uses a bunch of heuristics to come up with a good titlecased
