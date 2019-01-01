@@ -100,7 +100,7 @@ class FolderDisplay(object):
 
 class SongPreview(object):
   def __init__(self):
-    self._playing = False
+    self._playing = 'no'
     self._filename = None
     self._end_time = self._start_time = 0
     if not mainconfig["previewmusic"]:
@@ -112,7 +112,7 @@ class SongPreview(object):
       if (song.info["filename"].lower().endswith("mp3") and
           mainconfig["previewmusic"] == 2):
         music.stop()
-        self._playing = False
+        self._playing = 'no'
         return
       if len(song.info["preview"]) == 2:
         # A DWI/SM/dance-style preview, an offset in the song and a length
@@ -123,16 +123,18 @@ class SongPreview(object):
         # KSF-style preview, a separate filename to play.
         self._start, length = 0, 100
         self._filename = song.info["preview"]
-      if self._playing: music.fadeout(500)
-      self._playing = False
+      if self._playing == 'yes':
+        self._playing = 'fadeout'
+        music.fadeout(500)
+      self._playing = 'no'
       self._start_time = pygame.time.get_ticks() + 500
       self._end_time = int(self._start_time + length * 1000)
     elif song.isfolder: music.fadeout(500)
 
   def update(self, time):
-    if self._filename is None: pass
-    elif time < self._start_time: pass
-    elif not self._playing:
+    print ('update', self._filename, self._playing, time, self._start_time, self._end_time)
+    if time < self._start_time: pass
+    elif self._playing == 'no':
       try:
         music.stop()
         music.load(self._filename)
@@ -140,16 +142,21 @@ class SongPreview(object):
         # Workaround for a pygame/libsdl mixer bug.
         #music.play(0, self._start)
         music.play(0, 0)
-        self._playing = True
+        self._playing = 'yes'
       except: # Filename not found? Song is too short? SMPEG blows?
         music.stop()
-        self.playing = False
+        self._playing = 'no'
     elif time < self._start_time + 1000: # mixer.music can't fade in
       music.set_volume((time - self._start_time) / 1000.0)
-    elif time > self._end_time - 1000:
+    elif (time > self._end_time - 1000) and self._playing == 'yes':
+      self._playing = 'fadeout'
       music.fadeout(1000)
-      self._playing = False
-      self._filename = None
+    elif time > self._end_time:
+      music.stop()
+      dt = pygame.time.get_ticks() + 1000 - self._start_time
+      self._end_time = dt + self._end_time
+      self._start_time = dt + self._start_time
+      self._playing = 'no'
 
 class SongSelect(InterfaceWindow):
   def __init__(self, songs, courses, screen, game):
