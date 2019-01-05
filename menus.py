@@ -141,8 +141,13 @@ class Menu(object):
     curitem = 0
     topitem = 0
     changed = False
-    toprotater = TextZoomer(self.text, FontTheme.Menu_rotating_top, (640, 64),
-                            (178, 110, 0), colors.WHITE)
+
+    menu_title = pygame.surface.Surface((640, 64))
+    menu_title.fill(colors.WHITE)
+    menu_title_text = FontTheme.Menu_rotating_top.render(self.text, True, (178, 110, 0))
+    menu_title_rect = menu_title_text.get_rect()
+    menu_title.blit(menu_title_text, [320 - (menu_title_rect.size[0]/2),
+                                       32 - (menu_title_rect.size[1]/2)])
 
     self.items[curitem].activate(SELECT)
 
@@ -186,10 +191,9 @@ class Menu(object):
         ui.ui.clear()
         changed = True
 
-      toprotater.iterate()
       if changed: r.append(screen.blit(Menu.bgimage, TOPLEFT))
       else: screen.blit(Menu.bgimage, TOPLEFT)
-      r.append(screen.blit(toprotater.tempsurface, TOPLEFT))
+      r.append(screen.blit(menu_title, TOPLEFT))
       for i in range(DISPLAYED_ITEMS):
         if i + topitem < len(self.items):
           r.append(screen.blit(self.items[i + topitem].image,

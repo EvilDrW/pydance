@@ -267,5 +267,5 @@ def do(screen, songdata):
         )
        )
 
-  me = menus.Menu(_("Main Menu"), m, screen, sprites)
+  me = menus.Menu(_(""), m, screen, sprites)
   me.display()
