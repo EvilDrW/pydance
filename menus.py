@@ -15,8 +15,6 @@ DISPLAYED_ITEMS = 6
 
 CREATE, SELECT, UNSELECT = 1000, 2000, 3000
 
-button_bg = pygame.image.load(os.path.join(image_path, "button.png"))
-
 class MenuItem(object):
 
   def __init__(self, text, callbacks, args):
@@ -29,7 +27,8 @@ class MenuItem(object):
     # called.
     self.callbacks = callbacks
     self.args = args
-    self.bg = button_bg
+    self.bg = pygame.image.load(os.path.join(image_path, "button.png")).convert()
+    self.bg.set_colorkey(self.bg.get_at([0, 0]))
     self.rgb = LIGHT_GRAY
     self.subtext = None
     self.alpha = TRANSPARENT
@@ -64,7 +63,7 @@ class MenuItem(object):
 
   # Render the image. If subtext is present, the main text gets smaller.
   def render(self):
-    self.image = pygame.surface.Surface(BUTTON_SIZE)
+    self.image = pygame.surface.Surface(BUTTON_SIZE, pygame.SRCALPHA, 32)
     self.image.blit(self.bg, (0,0))
     if self.subtext == None:
       text = FontTheme.Menu_button_no_sub.render(self.text, 1, self.rgb)
@@ -99,7 +98,8 @@ class Menu(object):
     self.sprites = sprites
     self.text = name
     self.rgb = LIGHT_GRAY
-    self.bg = button_bg
+    self.bg = pygame.image.load(os.path.join(image_path, "button.png")).convert()
+    self.bg.set_colorkey(self.bg.get_at([0, 0]))
     self.alpha = TRANSPARENT
     self.screen = screen
     self.render()
@@ -112,7 +112,7 @@ class Menu(object):
 
   # Menu rendering is tons easier, since it never changes.
   def render(self):
-    self.image = pygame.surface.Surface(BUTTON_SIZE)
+    self.image = pygame.surface.Surface(BUTTON_SIZE, pygame.SRCALPHA, 32)
     self.image.blit(self.bg, (0,0))
     text = FontTheme.Menu_button_no_sub.render(self.text, 1, self.rgb)
     self.image.blit(text, (BUTTON_WIDTH/2 - FontTheme.Menu_button_no_sub.size(self.text)[0] / 2,
